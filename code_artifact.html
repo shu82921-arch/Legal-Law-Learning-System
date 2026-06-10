@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>法考刑法财产犯罪审查逻辑系统</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        body {
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
+        }
+        .step-active {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+            color: #1d4ed8;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white shadow-md border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-600 p-2 rounded-lg">
+                    <i data-lucide="scale" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">法考刑法：财产犯罪精细化定性审查系统</h1>
+                    <p class="text-xs text-slate-400">摒弃主观直觉 · 聚焦客观处分 · 严密逻辑递进</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <span class="inline-flex items-center gap-1 bg-slate-800 px-3 py-1 rounded-full text-xs text-slate-300 border border-slate-700">
+                    <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-yellow-500"></i> 严禁直觉归因
+                </span>
+                <span class="inline-flex items-center gap-1 bg-slate-800 px-3 py-1 rounded-full text-xs text-slate-300 border border-slate-700">
+                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-green-500"></i> 处分原因为核
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Left Side: Interactive Diagnostics & Sandbox (7 Cols) -->
+        <section class="lg:col-span-7 space-y-8">
+            
+            <!-- Sandbox Banner -->
+            <div class="bg-gradient-to-r from-blue-700 to-indigo-800 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 opacity-10">
+                    <i data-lucide="file-text" class="w-48 h-48"></i>
+                </div>
+                <div class="relative z-10">
+                    <span class="bg-blue-500/30 text-blue-200 text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wider">核心裁判逻辑</span>
+                    <h2 class="text-2xl font-bold mt-2 mb-3">罪名定性四步推导沙盒</h2>
+                    <p class="text-slate-200 text-sm leading-relaxed mb-4">
+                        不要首先纠结“非法占有目的”（那是民刑交叉的门槛门禁）。财产犯罪罪名之间的区分，首先看<strong>被害人有没有处分行为</strong>，以及<strong>处分行为形成的原因</strong>。
+                    </p>
+                    <button onclick="resetDecisionTree()" class="bg-white text-blue-900 hover:bg-slate-100 transition px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 shadow-sm">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i> 重置诊断推导
+                    </button>
+                </div>
+            </div>
+
+            <!-- Decision Tree Simulator Card -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                    <h3 class="text-lg font-bold flex items-center gap-2 text-slate-900">
+                        <i data-lucide="git-fork" class="text-blue-600"></i> 
+                        动态定性推导沙盒
+                    </h3>
+                    <span class="text-xs text-slate-500">点击符合案情的特征逐步递进</span>
+                </div>
+
+                <!-- Step Tabs UI (Progress Indicator) -->
+                <div class="grid grid-cols-4 gap-2 mb-6">
+                    <div id="tab-step-1" class="border-b-2 border-blue-600 pb-2 text-center transition-all duration-300">
+                        <p class="text-xs text-slate-400 font-medium">STEP 1</p>
+                        <p class="text-xs sm:text-sm font-bold text-blue-600">处分行为</p>
+                    </div>
+                    <div id="tab-step-2" class="border-b-2 border-slate-200 pb-2 text-center transition-all duration-300">
+                        <p class="text-xs text-slate-400 font-medium">STEP 2</p>
+                        <p class="text-xs sm:text-sm font-bold text-slate-400">意思状态</p>
+                    </div>
+                    <div id="tab-step-3" class="border-b-2 border-slate-200 pb-2 text-center transition-all duration-300">
+                        <p class="text-xs text-slate-400 font-medium">STEP 3</p>
+                        <p class="text-xs sm:text-sm font-bold text-slate-400">外在干扰</p>
+                    </div>
+                    <div id="tab-step-result" class="border-b-2 border-slate-200 pb-2 text-center transition-all duration-300">
+                        <p class="text-xs text-slate-400 font-medium">RESULT</p>
+                        <p class="text-xs sm:text-sm font-bold text-slate-400">推导结论</p>
+                    </div>
+                </div>
+
+                <!-- Current Step Panel Container -->
+                <div id="diagnostic-panel" class="min-h-[220px] bg-slate-50 rounded-xl p-5 border border-slate-100 flex flex-col justify-between">
+                    <!-- Dynamic Content Loaded via JS -->
+                </div>
+            </div>
+
+            <!-- Core Test Scenarios (5 Categories) -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <h3 class="text-lg font-bold flex items-center gap-2 text-slate-900 mb-6 pb-4 border-b border-slate-100">
+                    <i data-lucide="layers" class="text-indigo-600"></i>
+                    法考最爱考的五类核心考法分类
+                </h3>
+
+                <!-- Tabs for 5 Categories -->
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <button onclick="switchCategoryTab('category-1')" id="btn-category-1" class="category-btn px-4 py-2 rounded-lg text-sm font-medium bg-indigo-50 text-indigo-700 border border-indigo-200 transition-all">
+                        1. 取得型犯罪
+                    </button>
+                    <button onclick="switchCategoryTab('category-2')" id="btn-category-2" class="category-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition-all">
+                        2. 占有转化型
+                    </button>
+                    <button onclick="switchCategoryTab('category-3')" id="btn-category-3" class="category-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition-all">
+                        3. 毁坏型犯罪
+                    </button>
+                    <button onclick="switchCategoryTab('category-4')" id="btn-category-4" class="category-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition-all">
+                        4. 暴力升级型
+                    </button>
+                    <button onclick="switchCategoryTab('category-5')" id="btn-category-5" class="category-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition-all">
+                        5. 新兴交叉财产
+                    </button>
+                </div>
+
+                <!-- Category Content Blocks -->
+                <div id="category-content-container" class="space-y-4">
+                    <!-- Dynamic Injection based on selection -->
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Right Side: Essential Tables & Comparison Cards (5 Cols) -->
+        <section class="lg:col-span-5 space-y-8">
+            
+            <!-- Quick Formula Reference / Key Map -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <h3 class="text-lg font-bold flex items-center gap-2 text-slate-900 mb-4">
+                    <i data-lucide="grid" class="text-emerald-600"></i>
+                    法考核心罪名判定金图表
+                </h3>
+                <p class="text-xs text-slate-500 mb-4">快速定位法考选择题中的实质行为区分点：</p>
+                
+                <div class="overflow-x-auto rounded-lg border border-slate-200">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold">
+                            <tr>
+                                <th class="p-3">罪名</th>
+                                <th class="p-3">处分行为?</th>
+                                <th class="p-3">交付之原因</th>
+                                <th class="p-3">行为本质</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            <tr class="hover:bg-slate-50/50 transition">
+                                <td class="p-3 font-semibold text-slate-900">盗窃罪</td>
+                                <td class="p-3"><span class="bg-rose-100 text-rose-800 text-[11px] px-2 py-0.5 rounded-full font-medium">无</span></td>
+                                <td class="p-3 text-slate-500">无交付意愿</td>
+                                <td class="p-3 text-slate-600 font-mono text-xs">秘密窃取 / 平和移转占有</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/50 transition">
+                                <td class="p-3 font-semibold text-slate-900">诈骗罪</td>
+                                <td class="p-3"><span class="bg-green-100 text-green-800 text-[11px] px-2 py-0.5 rounded-full font-medium">有</span></td>
+                                <td class="p-3 text-blue-600 font-medium">陷入错误认识</td>
+                                <td class="p-3 text-slate-600 font-mono text-xs">基于错误处分并交付</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/50 transition">
+                                <td class="p-3 font-semibold text-slate-900">敲诈勒索</td>
+                                <td class="p-3"><span class="bg-green-100 text-green-800 text-[11px] px-2 py-0.5 rounded-full font-medium">有</span></td>
+                                <td class="p-3 text-orange-600 font-medium">产生恐惧心理</td>
+                                <td class="p-3 text-slate-600 font-mono text-xs">被迫选择处分以求避祸</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/50 transition">
+                                <td class="p-3 font-semibold text-slate-900">抢劫罪</td>
+                                <td class="p-3"><span class="bg-rose-100 text-rose-800 text-[11px] px-2 py-0.5 rounded-full font-medium">无 (法律意义)</span></td>
+                                <td class="p-3 text-red-600 font-medium">绝对暴力压制</td>
+                                <td class="p-3 text-slate-600 font-mono text-xs">丧失意志自主下被迫交出</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+                    <p class="text-xs text-blue-800 font-medium leading-relaxed">
+                        <strong>📌 非法占有目的的角色定义：</strong><br>
+                        它是判断<strong>“构不构成犯罪”</strong>的标尺（如：借钱不还是民事纠纷还是合同诈骗）；而不是判断<strong>“构成此罪还是彼罪”</strong>（盗窃 vs 诈骗）的划分标准。
+                    </p>
+                </div>
+            </div>
+
+            <!-- Key Contrast Pairs (Toggle List Accordions) -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <h3 class="text-lg font-bold flex items-center gap-2 text-slate-900 mb-4">
+                    <i data-lucide="git-compare" class="text-orange-600"></i>
+                    5组命题人最爱设伏的易混淆点
+                </h3>
+                
+                <div class="space-y-3">
+                    
+                    <!-- Pair 1 -->
+                    <div class="border border-slate-200 rounded-xl overflow-hidden">
+                        <button onclick="toggleAccordion('acc-1')" class="w-full flex justify-between items-center p-4 bg-slate-50 hover:bg-slate-100 transition text-left">
+                            <span class="font-bold text-sm text-slate-800">1. 盗窃罪 VS 诈骗罪 (核心焦点)</span>
+                            <i id="icon-acc-1" data-lucide="chevron-down" class="w-4 h-4 text-slate-500 transition-transform"></i>
+                        </button>
+                        <div id="acc-1" class="hidden p-4 border-t border-slate-200 bg-white text-xs space-y-2 leading-relaxed">
+                            <p class="font-bold text-rose-600">核心区分点：被害人有无“处分行为”及“处分意思”。</p>
+                            <p><strong>典型例子：</strong></p>
+                            <ul class="list-disc pl-4 space-y-1 text-slate-600">
+                                <li><strong>诈骗：</strong>甲假扮房东，租客基于错误认识主动转租金。有处分，是诈骗。</li>
+                                <li><strong>盗窃：</strong>甲趁租客熟睡拿走钱包，租客完全不知情、无处分行为。是盗窃。</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Pair 2 -->
+                    <div class="border border-slate-200 rounded-xl overflow-hidden">
+                        <button onclick="toggleAccordion('acc-2')" class="w-full flex justify-between items-center p-4 bg-slate-50 hover:bg-slate-100 transition text-left">
+                            <span class="font-bold text-sm text-slate-800">2. 诈骗罪 VS 敲诈勒索罪</span>
+                            <i id="icon-acc-2" data-lucide="chevron-down" class="w-4 h-4 text-slate-500 transition-transform"></i>
+                        </button>
+                        <div id="acc-2" class="hidden p-4 border-t border-slate-200 bg-white text-xs space-y-2 leading-relaxed">
+                            <p class="font-bold text-rose-600">核心区分点：交付财物的基础动机是“傻了(欺骗)”还是“怕了(恐惧)”。</p>
+                            <p><strong>典型例子：</strong></p>
+                            <ul class="list-disc pl-4 space-y-1 text-slate-600">
+                                <li><strong>诈骗：</strong>假冒大师说只要转账就能祈福消灾，信以为真而交付。</li>
+                                <li><strong>敲诈勒索：</strong>声称不给钱就曝光隐私视频，因产生巨大恐惧、两害相权取其轻而转账。</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Pair 3 -->
+                    <div class="border border-slate-200 rounded-xl overflow-hidden">
+                        <button onclick="toggleAccordion('acc-3')" class="w-full flex justify-between items-center p-4 bg-slate-50 hover:bg-slate-100 transition text-left">
+                            <span class="font-bold text-sm text-slate-800">3. 抢劫罪 VS 敲诈勒索罪</span>
+                            <i id="icon-acc-3" data-lucide="chevron-down" class="w-4 h-4 text-slate-500 transition-transform"></i>
+                        </button>
+                        <div id="acc-3" class="hidden p-4 border-t border-slate-200 bg-white text-xs space-y-2 leading-relaxed">
+                            <p class="font-bold text-rose-600">核心区分点：被害人的意思自主空间是否已被“彻底压制”（即当场丧失抗拒能力）。</p>
+                            <p><strong>典型例子：</strong></p>
+                            <ul class="list-disc pl-4 space-y-1 text-slate-600">
+                                <li><strong>敲诈：</strong>“三天内不给我转账就打断你的腿”（尚存考虑与选择的时间）。</li>
+                                <li><strong>抢劫：</strong>尖刀抵喉，“立刻把身上首饰和微信密码给我”（毫无选择，只能服从当场交付，法律上视同无处分行为）。</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Pair 4 -->
+                    <div class="border border-slate-200 rounded-xl overflow-hidden">
+                        <button onclick="toggleAccordion('acc-4')" class="w-full flex justify-between items-center p-4 bg-slate-50 hover:bg-slate-100 transition text-left">
+                            <span class="font-bold text-sm text-slate-800">4. 盗窃罪 VS 侵占罪</span>
+                            <i id="icon-acc-4" data-lucide="chevron-down" class="w-4 h-4 text-slate-500 transition-transform"></i>
+                        </button>
+                        <div id="acc-4" class="hidden p-4 border-t border-slate-200 bg-white text-xs space-y-2 leading-relaxed">
+                            <p class="font-bold text-rose-600">核心区分点：财物到手之前，行为人是否已经建立起了“合法占有”。</p>
+                            <p><strong>典型例子：</strong></p>
+                            <ul class="list-disc pl-4 space-y-1 text-slate-600">
+                                <li><strong>侵占：</strong>替朋友代为保管高档数码相机（此时已处于合法占有），后拒不返还。</li>
+                                <li><strong>盗窃：</strong>假借试用手机，趁人不备拔腿就跑。借口“保管”并非法律意义的占有转移，拿到手上之前仍属失主控制，故构成盗窃。</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Pair 5 -->
+                    <div class="border border-slate-200 rounded-xl overflow-hidden">
+                        <button onclick="toggleAccordion('acc-5')" class="w-full flex justify-between items-center p-4 bg-slate-50 hover:bg-slate-100 transition text-left">
+                            <span class="font-bold text-sm text-slate-800">5. 盗窃罪 VS 转化型抢劫罪</span>
+                            <i id="icon-acc-5" data-lucide="chevron-down" class="w-4 h-4 text-slate-500 transition-transform"></i>
+                        </button>
+                        <div id="acc-5" class="hidden p-4 border-t border-slate-200 bg-white text-xs space-y-2 leading-relaxed">
+                            <p class="font-bold text-rose-600">核心区分点：秘密窃取财物后，为了“窝藏赃物、抗拒抓捕或毁灭证据”而当场使用暴力或暴力威胁。</p>
+                            <p><strong>法律规范：</strong>刑法第二百六十九条之规定。</p>
+                            <p><strong>典型例子：</strong></p>
+                            <ul class="list-disc pl-4 space-y-1 text-slate-600">
+                                <li>小偷潜入民宅行窃，被主人发现围堵。为了摆脱抓捕，掏出匕首刺伤主人后逃逸。—— 构成转化型抢劫罪，不以盗窃一罪定论。</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Instant Challenge / Simulated Question Card -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold flex items-center gap-2 text-slate-900">
+                        <i data-lucide="graduation-cap" class="text-purple-600"></i>
+                        法考经典考案即时练
+                    </h3>
+                    <span class="bg-purple-100 text-purple-800 text-[11px] px-2.5 py-0.5 rounded-full font-semibold">难点解析</span>
+                </div>
+                
+                <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 mb-4">
+                    <p class="text-sm font-medium leading-relaxed text-slate-800" id="quiz-question-text">
+                        <!-- Simulated Case Scenario injected here -->
+                    </p>
+                </div>
+
+                <!-- Multiple Choice Elements -->
+                <div class="space-y-2" id="quiz-options-container">
+                    <!-- Dynamic Choices -->
+                </div>
+
+                <div id="quiz-feedback" class="hidden mt-4 p-4 rounded-xl text-xs leading-relaxed">
+                    <!-- Feedback details here -->
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer Banner -->
+    <footer class="bg-slate-900 border-t border-slate-800 text-slate-400 py-6 text-center text-xs mt-12">
+        <p class="mb-1">© 2026 法理学人·法理考定性辅助系统. 版权所有.</p>
+        <p>法考财产罪命题法理依据：《中华人民共和国刑法》及最高人民法院相关司法解释</p>
+    </footer>
+
+    <!-- JS Logic -->
+    <script>
+        // State variables
+        let treeState = {
+            step: 1,
+            disposition: null,    // 'yes' | 'no'
+            freewill: null,       // 'free' | 'fear' | 'suppressed'
+            originalPossession: null, // 'lawful' | 'unlawful'
+            violenceType: null,   // 'robbery' | 'transform' | 'none'
+            destructionOnly: null // 'yes' | 'no'
+        };
+
+        // Decision steps structure
+        const decisionSteps = {
+            1: {
+                title: "第一步：被害人是否有“处分行为”？",
+                description: "处分行为是指被害人基于自己的意思（即使是被骗/被吓），主动把财物脱离自己的占有控制，交到行为人手里。",
+                options: [
+                    {
+                        text: "有处分行为（主动转账、给付、交付财物）",
+                        value: "yes",
+                        desc: "例如：租客把钱转给假房东；被害人由于恐惧主动转账。"
+                    },
+                    {
+                        text: "无处分行为（不知情下转移、被动丧失）",
+                        value: "no",
+                        desc: "例如：睡觉时手机被摸走；光天化日直接夺取；绝对暴力压制下无自主能力地被抢。"
+                    }
+                ]
+            },
+            2: {
+                title: "第二步：被害人的处分行为，其意思是否属于自由状态？",
+                description: "判断在交付这一瞬间，促使被害人行为的主观推力到底是什么。",
+                options: [
+                    {
+                        text: "存在意思自主（由于信息不对称被骗）",
+                        value: "free",
+                        desc: "被害人可以自由选择交付或拒绝，只是因为“信息虚假”信错、认错、上当了。→ 指向诈骗。"
+                    },
+                    {
+                        text: "因“恐惧心理”非自愿交付",
+                        value: "fear",
+                        desc: "虽有交付动作，但交付的底层动机是由于名誉、财产、生命等受到胁迫产生的恐惧心理。→ 指向敲诈勒索。"
+                    }
+                ]
+            },
+            3: {
+                title: "第三步：不法行为中，暴力或胁迫是否已经压制了意思自由？",
+                description: "极强暴力使人丧失任何反抗的可能性，或者使人不得不现场交出财物。",
+                options: [
+                    {
+                        text: "意思已彻底被“暴力、胁迫”所压制（达到不能反抗的程度）",
+                        value: "suppressed",
+                        desc: "例如：持刀顶肋，“现在转账 10 万，不转就刺”。此时虽也是被害人自己转账，但法律认为其主观处分权已被绝对压制。→ 锁定抢劫。"
+                    }
+                ]
+            }
+        };
+
+        // Initialize elements on load
+        window.onload = function() {
+            lucide.createIcons();
+            renderDecisionTree();
+            switchCategoryTab('category-1');
+            loadQuiz();
+        };
+
+        // Render Decision Tree DOM dynamically
+        function renderDecisionTree() {
+            const container = document.getElementById('diagnostic-panel');
+            const step = treeState.step;
+
+            // Highlight progress tabs
+            updateTabStates(step);
+
+            if (step <= 3) {
+                // If we need custom path divergence for Step 2 and 3:
+                // If state.disposition is 'no', we bypass Step 2 (since no disposition exists, we skip to violence check)
+                if (step === 2 && treeState.disposition === 'no') {
+                    // Automatically jump step or present specific bypass
+                    treeState.step = 3;
+                    renderDecisionTree();
+                    return;
+                }
+
+                let currentData = decisionSteps[step];
+                
+                // Special case override descriptions
+                if (step === 3 && treeState.disposition === 'no') {
+                    currentData = {
+                        title: "第三步：行为过程中是否存在暴力压制或升级？",
+                        description: "此时财产已被移转，看过程是以非暴力窃取、趁人不备夺取，还是直接强暴劫财？",
+                        options: [
+                            {
+                                text: "以平和手段夺取，或窃取（无暴力）",
+                                value: "no-violence",
+                                desc: "例如：趁人不备抢夺，或者秘密窃取。"
+                            },
+                            {
+                                text: "当场以暴力/胁迫进行压制，强行取财",
+                                value: "violence",
+                                desc: "例如：使用暴力手段使被害人不能反抗当场劫走。→ 指向抢劫。"
+                            },
+                            {
+                                text: "本已和平窃取完毕，因“抗拒抓捕”当场使用暴力",
+                                value: "transform-violence",
+                                desc: "例如：偷完东西准备走，掏刀捅伤阻挡的失主或保安。→ 转化为抢劫。"
+                            }
+                        ]
+                    };
+                }
+
+                let optionsHTML = '';
+                currentData.options.forEach(opt => {
+                    optionsHTML += `
+                        <button onclick="handleTreeSelection('${opt.value}')" class="w-full text-left bg-white p-4 rounded-xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 transition duration-200 shadow-sm group">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-slate-800 text-sm group-hover:text-blue-700">${opt.text}</span>
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 group-hover:text-blue-500 transition-transform"></i>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">${opt.desc}</p>
+                        </button>
+                    `;
+                });
+
+                container.innerHTML = `
+                    <div class="space-y-2">
+                        <h4 class="text-base font-bold text-slate-900">${currentData.title}</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed mb-4">${currentData.description}</p>
+                    </div>
+                    <div class="space-y-3 mt-4">
+                        ${optionsHTML}
+                    </div>
+                `;
+            } else {
+                // Calculation of Result
+                calculateResult(container);
+            }
+            lucide.createIcons();
+        }
+
+        function handleTreeSelection(value) {
+            const step = treeState.step;
+            if (step === 1) {
+                treeState.disposition = value;
+                treeState.step = 2; // will auto-skip to 3 inside render if value is 'no'
+            } else if (step === 2) {
+                treeState.freewill = value;
+                treeState.step = 4; // Result phase for disposition = 'yes'
+            } else if (step === 3) {
+                // If it came from disposition = 'no' path
+                if (value === 'no-violence') {
+                    // Let's ask if it was already in their lawful possession beforehand (Invade vs Theft)
+                    treeState.step = 3.5; // Custom intermediate check for Theft vs Embezzlement
+                    renderTheftVsEmbezzlementCheck();
+                    return;
+                } else if (value === 'violence') {
+                    treeState.violenceType = 'robbery';
+                } else if (value === 'transform-violence') {
+                    treeState.violenceType = 'transform';
+                }
+                treeState.step = 4;
+            }
+            renderDecisionTree();
+        }
+
+        function renderTheftVsEmbezzlementCheck() {
+            const container = document.getElementById('diagnostic-panel');
+            container.innerHTML = `
+                <div class="space-y-2">
+                    <h4 class="text-base font-bold text-slate-900">补充判断：在财物转移之前，你是否已经“合法占有”该物？</h4>
+                    <p class="text-xs text-slate-500 leading-relaxed mb-4">合法占有包括：受人代为保管、拾得遗忘物或漂流物。占有权已转给你了。</p>
+                </div>
+                <div class="space-y-3 mt-4">
+                    <button onclick="concludeTheftVsEmbezzlement('lawful')" class="w-full text-left bg-white p-4 rounded-xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 transition duration-200 shadow-sm group">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-slate-800 text-sm group-hover:text-blue-700">是，取得前我已经是该物的合法合法保管/控制人</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">例如：朋友寄放在我家的电脑、我捡到的遗忘物，后拒绝归还。</p>
+                    </button>
+                    <button onclick="concludeTheftVsEmbezzlement('unlawful')" class="w-full text-left bg-white p-4 rounded-xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 transition duration-200 shadow-sm group">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-slate-800 text-sm group-hover:text-blue-700">否，取得前属于他人占有，我不享有合法的物理/法律支配权</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">例如：假借“试戴”项链，刚拿手上转身就跑；或乘人熟睡中盗走钱包。</p>
+                    </button>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function concludeTheftVsEmbezzlement(possession) {
+            treeState.originalPossession = possession;
+            treeState.step = 4;
+            renderDecisionTree();
+        }
+
+        function calculateResult(container) {
+            let title = "";
+            let charge = "";
+            let logic = "";
+            let colorClass = "from-emerald-500 to-teal-600";
+
+            if (treeState.disposition === 'yes') {
+                if (treeState.freewill === 'free') {
+                    charge = "诈骗罪 (刑法第266条)";
+                    title = "🎉 推导结果：诈骗罪认定方向";
+                    logic = "<strong>审查要件：</strong>被害人由于行为人的虚构事实或隐瞒真相，陷入<strong>错误认识</strong>；并基于该错误认识主动实施了财产交付（处分行为）。被害人虽信息受欺骗，但交财物时具有完全的意思自主选择权。";
+                    colorClass = "from-blue-600 to-indigo-600";
+                } else if (treeState.freewill === 'fear') {
+                    charge = "敲诈勒索罪 (刑法第274条)";
+                    title = "🎉 推导结果：敲诈勒索罪认定方向";
+                    logic = "<strong>审查要件：</strong>行为人对被害人实施威胁、要挟、或恫吓手段；被害人由此产生<strong>恐惧心理</strong>，并在两害相权取其轻的支配下，主动交付财产（属于意思存在瑕疵的处分行为）。";
+                    colorClass = "from-orange-500 to-amber-600";
+                }
+            } else {
+                // disposition === 'no'
+                if (treeState.violenceType === 'robbery') {
+                    charge = "抢劫罪 (刑法第263条)";
+                    title = "🎉 推导结果：抢劫罪认定方向";
+                    logic = "<strong>审查要件：</strong>当场使用暴力、胁迫或者其他方法，强制压制被害人至<strong>不能反抗、不敢反抗、无法反抗</strong>的绝对状态，并当场强取财物。法律上不认为其转账/交付具有任何可评价的“处分意思”。";
+                    colorClass = "from-rose-600 to-red-700";
+                } else if (treeState.violenceType === 'transform') {
+                    charge = "转化型抢劫罪 (刑法第269条)";
+                    title = "🎉 推导结果：转化型抢劫罪认定方向";
+                    logic = "<strong>审查要件：</strong>行为人犯盗窃罪、诈骗罪、抢夺罪，为窝藏赃物、抗拒抓捕或者毁灭证据而当场使用暴力或者以暴力相威胁的，依照刑法第二百六十三条（抢劫罪）规定定罪处罚。";
+                    colorClass = "from-red-700 to-purple-800";
+                } else {
+                    // No violence, let's see possession
+                    if (treeState.originalPossession === 'lawful') {
+                        charge = "侵占罪 (刑法第270条)";
+                        title = "🎉 推导结果：侵占罪认定方向";
+                        logic = "<strong>审查要件：</strong>行为人已经<strong>合法地持有/代管</strong>了该财产（或是捡到了遗忘物、埋藏物、漂流物等），随之改变犯意，将财物据为己有并拒不退还、拒不交出。";
+                        colorClass = "from-yellow-600 to-amber-700";
+                    } else {
+                        charge = "盗窃罪 (刑法第264条)";
+                        title = "🎉 推导结果：盗窃罪（或抢夺）认定方向";
+                        logic = "<strong>审查要件：</strong>无合法代管占有前提，且被害人<strong>没有处分行为</strong>。行为人违反被害人意思，以平和窃取方式将财物移转入自己非法控制之下。";
+                        colorClass = "from-teal-600 to-cyan-700";
+                    }
+                }
+            }
+
+            // Update Tab State for Result Tab
+            const resTab = document.getElementById('tab-step-result');
+            resTab.classList.remove('border-slate-200');
+            resTab.classList.add('border-green-500', 'text-green-600');
+            resTab.querySelector('p:last-child').className = "text-xs sm:text-sm font-bold text-green-600";
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <div class="bg-gradient-to-r ${colorClass} p-4 rounded-xl text-white shadow">
+                        <p class="text-xs font-semibold opacity-90">${title}</p>
+                        <h4 class="text-xl font-bold mt-1">${charge}</h4>
+                    </div>
+                    <div class="text-sm text-slate-700 leading-relaxed bg-white border border-slate-200 p-4 rounded-xl">
+                        ${logic}
+                    </div>
+                    <div class="bg-blue-50 border border-blue-100 p-3 rounded-lg text-xs text-blue-800 leading-relaxed">
+                        ⚠️ <strong>法考提防陷阱：</strong>在此之后，别忘了检验“非法占有目的”。如果行为人自始至终无非法占有的目的，且不抗拒返还，可能属于不构成民刑交叉民事纠纷或紧急避险。
+                    </div>
+                    <button onclick="resetDecisionTree()" class="mt-2 w-full bg-slate-800 hover:bg-slate-700 text-white transition text-sm font-semibold py-2.5 rounded-lg flex items-center justify-center gap-2">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                        再次测算新案件
+                    </button>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function resetDecisionTree() {
+            treeState = {
+                step: 1,
+                disposition: null,
+                freewill: null,
+                originalPossession: null,
+                violenceType: null,
+                destructionOnly: null
+            };
+            
+            // Restore Tab UI header status
+            const tabs = ['tab-step-1', 'tab-step-2', 'tab-step-3', 'tab-step-result'];
+            tabs.forEach(tabId => {
+                const el = document.getElementById(tabId);
+                el.className = "border-b-2 border-slate-200 pb-2 text-center transition-all duration-300";
+                const p = el.querySelector('p:last-child');
+                p.className = "text-xs sm:text-sm font-bold text-slate-400";
+            });
+
+            renderDecisionTree();
+        }
+
+        function updateTabStates(step) {
+            const tabs = {
+                1: 'tab-step-1',
+                2: 'tab-step-2',
+                3: 'tab-step-3',
+                4: 'tab-step-result'
+            };
+            
+            Object.keys(tabs).forEach(k => {
+                const el = document.getElementById(tabs[k]);
+                if (parseInt(k) <= step) {
+                    el.classList.remove('border-slate-200');
+                    el.classList.add('border-blue-600');
+                    el.querySelector('p:last-child').className = "text-xs sm:text-sm font-bold text-blue-600";
+                } else {
+                    el.classList.remove('border-blue-600');
+                    el.classList.add('border-slate-200');
+                    el.querySelector('p:last-child').className = "text-xs sm:text-sm font-bold text-slate-400";
+                }
+            });
+        }
+
+        // Switch Category Tabs for Right Sidebar
+        const categoriesData = {
+            'category-1': `
+                <div class="space-y-4">
+                    <div class="border-l-4 border-indigo-500 pl-3">
+                        <h4 class="font-bold text-slate-800 text-sm">取得型犯罪：财物到底是怎么流转过来的？</h4>
+                        <p class="text-xs text-slate-500 mt-1">取得型犯罪是法考高频高难度出题点，解题重点在于剖析交付行为的客观过程。</p>
+                    </div>
+                    <div class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 space-y-3">
+                        <div class="flex items-start gap-3">
+                            <span class="bg-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold mt-0.5 shrink-0">①</span>
+                            <div>
+                                <h5 class="text-xs font-bold text-slate-800">偷拿？ $\rightarrow$ 盗窃罪</h5>
+                                <p class="text-xs text-slate-600 mt-0.5">违反被害人主观意志，平和地打破原占有，建立新占有关系。</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="bg-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold mt-0.5 shrink-0">②</span>
+                            <div>
+                                <h5 class="text-xs font-bold text-slate-800">自愿交付？ $\rightarrow$ 需继续往下层级推导</h5>
+                                <p class="text-xs text-slate-600 mt-0.5">对方主动递、汇或转移占有，有处分意图。</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="bg-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold mt-0.5 shrink-0">③</span>
+                            <div>
+                                <h5 class="text-xs font-bold text-slate-800">因受骗自愿交付？ $\rightarrow$ 诈骗罪</h5>
+                                <p class="text-xs text-slate-600 mt-0.5">例如假装领导急用钱，下属信以为真而汇款。</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="bg-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold mt-0.5 shrink-0">④</span>
+                            <div>
+                                <h5 class="text-xs font-bold text-slate-800">因被恐吓而交付？ $\rightarrow$ 敲诈勒索罪</h5>
+                                <p class="text-xs text-slate-600 mt-0.5">例如威胁散布个人阴暗隐私或不检点记录而强索财物。</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="bg-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold mt-0.5 shrink-0">⑤</span>
+                            <div>
+                                <h5 class="text-xs font-bold text-slate-800">当场暴力逼迫交付？ $\rightarrow$ 抢劫罪</h5>
+                                <p class="text-xs text-slate-600 mt-0.5">例如手持尖刀等利器直指脖颈胁迫必须当场用微信扫码付款。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            'category-2': `
+                <div class="space-y-4">
+                    <div class="border-l-4 border-teal-500 pl-3">
+                        <h4 class="font-bold text-slate-800 text-sm">占有转化型犯罪：本来合法拿到财物，后来不还</h4>
+                        <p class="text-xs text-slate-500 mt-1">重点考察“取得财物时是否已具有合法的实际占有”。</p>
+                    </div>
+                    <div class="bg-teal-50/50 p-4 rounded-xl border border-teal-100 space-y-3">
+                        <div class="flex items-start gap-2 text-xs">
+                            <i data-lucide="check" class="w-4 h-4 text-teal-600 mt-0.5 shrink-0"></i>
+                            <div>
+                                <span class="font-bold text-slate-800">侵占罪：</span>本来是合法占有，事后产生非法占有目的拒不退还。
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-500 pl-6 bg-slate-100/50 p-2 rounded">
+                            例如：将他人代为保管的十万块巨款悉数挥霍挪用，当物主要求返还时，矢口否认或断然拒绝归还。
+                        </p>
+                        <div class="border-t border-slate-200/50 my-2"></div>
+                        <div class="flex items-start gap-2 text-xs">
+                            <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600 mt-0.5 shrink-0"></i>
+                            <div class="text-amber-800 font-medium">
+                                法考易错点：盗窃罪 VS 侵占罪
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-600 pl-6 leading-relaxed">
+                            <strong>核心法则：</strong>取得财产之前有没有合法的法律支配力。试穿大衣、借看手表均未实质发生“合法占有转移”，此时带货跑路皆定为盗窃罪。
+                        </p>
+                    </div>
+                </div>
+            `,
+            'category-3': `
+                <div class="space-y-4">
+                    <div class="border-l-4 border-rose-500 pl-3">
+                        <h4 class="font-bold text-slate-800 text-sm">毁坏型犯罪：不以不法占有为目的，单纯破坏</h4>
+                        <p class="text-xs text-slate-500 mt-1">主观上完全没有将财物化为己有的私利图谋，重在灭失。</p>
+                    </div>
+                    <div class="bg-rose-50/50 p-4 rounded-xl border border-rose-100 space-y-3">
+                        <div class="flex items-start gap-2 text-xs text-slate-700">
+                            <i data-lucide="info" class="w-4 h-4 text-rose-600 shrink-0 mt-0.5"></i>
+                            <p>
+                                行为人故意把别人的汽车砸坏、放火烧毁、或者将其贵重数码设备掷落地面摔碎。
+                            </p>
+                        </div>
+                        <div class="p-3 bg-white border border-rose-200 rounded-lg text-xs">
+                            <p class="font-bold text-rose-800 mb-1">⚖️ 经典例证：</p>
+                            <p class="text-slate-600">
+                                甲出于报复怨恨，砸毁仇家宝马轿车的车窗玻璃并点火烧毁车壳。 $\rightarrow$ 构成<strong>故意毁坏财物罪</strong>而非盗窃或侵占。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `,
+            'category-4': `
+                <div class="space-y-4">
+                    <div class="border-l-4 border-purple-500 pl-3">
+                        <h4 class="font-bold text-slate-800 text-sm">暴力升级型犯罪：转化抢劫，法考最热衷考查</h4>
+                        <p class="text-xs text-slate-500 mt-1">因情势逼迫而诉诸当场暴力，行为性质由轻罪转化为抢劫罪。</p>
+                    </div>
+                    <div class="bg-purple-50/50 p-4 rounded-xl border border-purple-100 space-y-3 text-xs leading-relaxed">
+                        <p class="font-semibold text-purple-900">
+                            公式：盗窃/诈骗/抢夺 + 现场暴力 $\rightarrow$ 抢劫
+                        </p>
+                        <p class="text-slate-600">
+                            当行为人在窃取过程中，一经被物主或追捕者拦截，为抗拒抓捕、窝藏赃物或毁灭证据，当场掏出管制刀具捅伤被害人或保安阻拦者。
+                        </p>
+                        <div class="p-3 bg-white border border-purple-200 rounded-lg">
+                            <span class="font-semibold text-purple-700">真题重现：</span>
+                            小偷正潜伏在卧室内搜寻失物，忽闻主人推门惊叫。为摆脱抓捕，小偷猛力推搡主人致其撞击坚硬桌角造成颅内出血，后趁乱逃脱。 $\rightarrow$ <strong>构成转化型抢劫。</strong>
+                        </div>
+                    </div>
+                </div>
+            `,
+            'category-5': `
+                <div class="space-y-4">
+                    <div class="border-l-4 border-blue-500 pl-3">
+                        <h4 class="font-bold text-slate-800 text-sm">新型网络/虚拟财产案件：穿透虚拟面纱，直击财产本质</h4>
+                        <p class="text-xs text-slate-500 mt-1">存款、数据币、网络武器装备均包含价值，受刑法财产罪规制。</p>
+                    </div>
+                    <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100 space-y-3 text-xs">
+                        <div class="space-y-2 text-slate-700">
+                            <p><strong>财产范围延伸：</strong>电力、具有实质现实交换价值的网络装备、游戏币、加密账户及存款均构成刑法保护的财产。</p>
+                            <p><strong>实操认定准则：</strong></p>
+                            <ul class="list-disc pl-4 space-y-1 text-slate-600">
+                                <li>窃取他人手机当场盗转支付宝余额 $\rightarrow$ 属于<strong>盗窃罪</strong>。</li>
+                                <li>破解他人游戏装备并挂载交易变现 $\rightarrow$ 依据非法取得路径，主推<strong>盗窃罪</strong>或<strong>计算机犯罪</strong>竞合。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `
+        };
+
+        function switchCategoryTab(catId) {
+            // Update Tab active UI
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.className = "category-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition-all";
+            });
+            const activeBtn = document.getElementById(`btn-${catId}`);
+            activeBtn.className = "category-btn px-4 py-2 rounded-lg text-sm font-medium bg-indigo-50 text-indigo-700 border border-indigo-200 transition-all";
+
+            // Inject Content
+            document.getElementById('category-content-container').innerHTML = categoriesData[catId];
+            lucide.createIcons();
+        }
+
+        // Accordion for contrast pairs
+        function toggleAccordion(accId) {
+            const el = document.getElementById(accId);
+            const icon = document.getElementById(`icon-${accId}`);
+            
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                el.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // Mini Quiz Sandbox (Data)
+        const quizzes = [
+            {
+                question: "甲在公共汽车上见一妇女怀抱婴儿，颈上挂有一条纯金项链。甲假借帮其抱孩子之名，当妇女将孩子递给甲的瞬间，猛然抓取该纯金项链并飞奔下车逃走。甲的行为如何定性？",
+                options: [
+                    { text: "A. 抢劫罪 (暴力达到不可抗拒)", value: "A" },
+                    { text: "B. 抢夺罪 (趁人不备，公然夺取)", value: "B" },
+                    { text: "C. 盗窃罪 (秘密窃取，平和手段)", value: "C" },
+                    { text: "D. 诈骗罪 (假借抱孩子骗取财物)", value: "D" }
+                ],
+                answer: "B",
+                analysis: "<strong>正确答案是 B。</strong><br>1. 该妇女虽然将婴儿递交，但并没有将‘项链’的占有权进行处分的任何意识。因此<strong>不存在对项链的处分行为</strong>。排除诈骗罪。<br>2. 行为人趁人不备、公然夺取其紧身挂饰项链，并没有使用能彻底压制其意志的当场暴力，未达到抢劫程度。故构成<strong>抢夺罪</strong>。"
+            },
+            {
+                question: "甲假冒某高档小区业主在二手平台上高价收购名牌手表，约定在小区大堂交易。甲拿到受害人递来的价值20万百达翡丽手表‘试戴’时，对受害人说：‘我去旁边亮一点的地方拍个照看成色。’随即从大堂侧门溜走。甲构成何罪？",
+                options: [
+                    { text: "A. 诈骗罪 (属于虚构事实骗取财物)", value: "A" },
+                    { text: "B. 侵占罪 (属于合法代管后拒绝归还)", value: "B" },
+                    { text: "C. 盗窃罪 (无实质处分行为下的平和移转)", value: "C" },
+                    { text: "D. 抢夺罪 (公然拿走他人财物)", value: "D" }
+                ],
+                answer: "C",
+                analysis: "<strong>正确答案是 C（盗窃罪）。</strong><br>这是法考极其经典的‘借口试用乘机溜走’考案：<br>1. <strong>无处分行为：</strong>虽然手表由被害人‘递’给了甲，但这只是出于在失主视线范围内的‘试戴、看成色’，失主从未有将手表的所有权或独立的占有控制权进行转移的意愿。<br>2. 由于被害人并无处分意思，甲把在被害人紧密控制下的手表借机脱离失主视线据为己有，本质上属于打破既有占有，构成<strong>盗窃罪</strong>而非诈骗罪。"
+            }
+        ];
+
+        let currentQuizIndex = 0;
+
+        function loadQuiz() {
+            const quiz = quizzes[currentQuizIndex];
+            document.getElementById('quiz-question-text').innerHTML = `${currentQuizIndex + 1}. ${quiz.question}`;
+            
+            let optionsHTML = '';
+            quiz.options.forEach(opt => {
+                optionsHTML += `
+                    <button onclick="checkAnswer('${opt.value}')" class="quiz-opt-btn w-full text-left bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs p-3 rounded-lg transition font-medium">
+                        ${opt.text}
+                    </button>
+                `;
+            });
+            document.getElementById('quiz-options-container').innerHTML = optionsHTML;
+            
+            const feedback = document.getElementById('quiz-feedback');
+            feedback.className = "hidden mt-4 p-4 rounded-xl text-xs leading-relaxed";
+            feedback.innerHTML = '';
+        }
+
+        function checkAnswer(val) {
+            const quiz = quizzes[currentQuizIndex];
+            const feedback = document.getElementById('quiz-feedback');
+            
+            // Disable buttons to avoid multiple clicking
+            document.querySelectorAll('.quiz-opt-btn').forEach(btn => {
+                btn.disabled = true;
+            });
+
+            if (val === quiz.answer) {
+                feedback.className = "mt-4 p-4 rounded-xl text-xs leading-relaxed bg-green-50 border border-green-200 text-green-800";
+                feedback.innerHTML = `
+                    <div class="flex items-center gap-2 mb-2 font-bold text-sm">
+                        <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i> 回答正确！
+                    </div>
+                    ${quiz.analysis}
+                    ${getNextQuizButtonHTML()}
+                `;
+            } else {
+                feedback.className = "mt-4 p-4 rounded-xl text-xs leading-relaxed bg-rose-50 border border-rose-200 text-rose-800";
+                feedback.innerHTML = `
+                    <div class="flex items-center gap-2 mb-2 font-bold text-sm">
+                        <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600"></i> 回答错误，请看深度解析。
+                    </div>
+                    ${quiz.analysis}
+                    ${getNextQuizButtonHTML()}
+                `;
+            }
+            lucide.createIcons();
+        }
+
+        function getNextQuizButtonHTML() {
+            if (currentQuizIndex < quizzes.length - 1) {
+                return `
+                    <button onclick="nextQuiz()" class="mt-3 bg-slate-800 hover:bg-slate-700 text-white text-[11px] font-semibold px-3 py-1.5 rounded transition">
+                        下一题
+                    </button>
+                `;
+            } else {
+                return `
+                    <button onclick="resetQuiz()" class="mt-3 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-semibold px-3 py-1.5 rounded transition">
+                        重新开始自测
+                    </button>
+                `;
+            }
+        }
+
+        function nextQuiz() {
+            currentQuizIndex++;
+            loadQuiz();
+        }
+
+        function resetQuiz() {
+            currentQuizIndex = 0;
+            loadQuiz();
+        }
+    </script>
+
+</body>
+</html>
